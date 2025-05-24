@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_sql/helper/db_helper.dart';
+import 'package:flutter_sql/model/model_buku.dart';
 
 class Editbuku extends StatefulWidget {
-  const Editbuku({super.key});
+  final ModelBuku buku;
+  const Editbuku({super.key, required this.buku});
 
   @override
   State<Editbuku> createState() => _EditbukuState();
@@ -14,6 +17,22 @@ class _EditbukuState extends State<Editbuku> {
 
   bool _validatejudul = false;
   bool _validatekategori = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _judulController = TextEditingController(text: widget.buku.judulbuku);
+    _kategotiController = TextEditingController(text: widget.buku.kategori);
+  }
+
+  @override
+  void dispose() {
+    _judulController.dispose();
+    _kategotiController.dispose();
+    super.dispose();
+  }
+
+  
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +79,24 @@ class _EditbukuState extends State<Editbuku> {
                     fontWeight: FontWeight.bold
                     )
                     ),
-                    onPressed: (){}, child: Text('Update Data')
+                    onPressed: () async{
+                      setState(() {
+                      _validatejudul = _judulController.text.isEmpty;
+                        _validatekategori = _kategotiController.text.isEmpty;
+                      });
+
+                      if (!_validatejudul && !_validatekategori) {
+                        ModelBuku updatedBuku = ModelBuku(
+                          id: widget.buku.id,
+                          judulbuku: _judulController.text,
+                          kategori: _kategotiController.text,
+                        );
+
+                        await DBHelper.instance.updatebuku(updatedBuku);
+
+                        Navigator.pop(context, true); // kembali dan beri sinyal berhasil
+  }
+                    }, child: Text('Update Data')
                     ),
                     SizedBox(width: 10,),
                     TextButton(
@@ -70,7 +106,14 @@ class _EditbukuState extends State<Editbuku> {
                     fontWeight: FontWeight.bold
                     )
                     ),
-                    onPressed: (){}, child: Text('Clear Data')
+                    onPressed: (){
+                      _judulController.clear();
+                      _kategotiController.clear();
+                      setState(() {
+                        _validatejudul = false;
+                        _validatekategori = false;
+                      });
+                    }, child: Text('Clear Data')
                     )
                 ],
               ),

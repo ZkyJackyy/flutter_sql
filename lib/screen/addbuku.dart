@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_sql/helper/db_helper.dart';
+import 'package:flutter_sql/model/model_buku.dart';
 
 class Addbuku extends StatefulWidget {
   const Addbuku({super.key});
@@ -10,7 +12,7 @@ class Addbuku extends StatefulWidget {
 class _AddbukuState extends State<Addbuku> {
 
   var _judulController = TextEditingController();
-  var _kategotiController = TextEditingController();
+  var _kategoriController = TextEditingController();
 
   bool _validatejudul = false;
   bool _validatekategori = false;
@@ -42,7 +44,7 @@ class _AddbukuState extends State<Addbuku> {
               ),
               SizedBox(height: 20,),
               TextField(
-                controller: _kategotiController,
+                controller: _kategoriController,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
                   hintText: 'Masukkan Kategori Buku',
@@ -60,7 +62,18 @@ class _AddbukuState extends State<Addbuku> {
                     fontWeight: FontWeight.bold
                     )
                     ),
-                    onPressed: (){}, child: Text('Save Data')
+                    onPressed: () async{
+                      setState(() {
+                        _judulController.text.isEmpty ? _validatejudul = true : _validatekategori = false;
+                        _kategoriController.text.isEmpty ? _validatejudul = false : _validatekategori = false;
+                      });
+                      if(_validatejudul == false && _validatekategori == false){
+                        var buku  =ModelBuku(judulbuku: _judulController.text, kategori: _kategoriController.text);
+
+                        var result = await DBHelper.instance.insertBuku(buku);
+                        Navigator.pop(context, result);
+                      }
+                    }, child: Text('Save Data')
                     ),
                     SizedBox(width: 10,),
                     TextButton(
@@ -70,7 +83,10 @@ class _AddbukuState extends State<Addbuku> {
                     fontWeight: FontWeight.bold
                     )
                     ),
-                    onPressed: (){}, child: Text('Clear Data')
+                    onPressed: (){
+                      _judulController.text = '';
+                      _kategoriController.text = '';  
+                    }, child: Text('Clear Data')
                     )
                 ],
               ),
